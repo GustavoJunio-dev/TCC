@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Formulário Videomaker — Casamentos</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0d0d;
+    --surface: #161616;
+    --surface2: #1e1e1e;
+    --border: #2a2a2a;
+    --border-hover: #444;
+    --gold: #c9a84c;
+    --gold-dim: rgba(201,168,76,0.15);
+    --gold-glow: rgba(201,168,76,0.06);
+    --white: #f0ece4;
+    --muted: #6b6b6b;
+    --muted2: #4a4a4a;
+    --accent: #c9a84c;
+  }
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--white);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grain overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  .wrapper {
+    position: relative;
+    z-index: 1;
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 64px 24px 100px;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    margin-bottom: 64px;
+    animation: reveal 1s cubic-bezier(.22,1,.36,1) both;
+  }
+
+  .eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .eyebrow-line { height: 1px; width: 40px; background: var(--gold); opacity: 0.5; }
+
+  .eyebrow span {
+    font-size: 10px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-weight: 500;
+  }
+
+  .header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(36px, 6vw, 54px);
+    font-weight: 400;
+    line-height: 1.1;
+    color: var(--white);
+    margin-bottom: 16px;
+  }
+
+  .header h1 em {
+    font-style: italic;
+    color: var(--gold);
+  }
+
+  .header p {
+    font-size: 14px;
+    font-weight: 300;
+    color: var(--muted);
+    line-height: 1.7;
+    max-width: 440px;
+  }
+
+  /* ── PROGRESS ── */
+  .progress {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 52px;
+    animation: reveal 1s 0.1s cubic-bezier(.22,1,.36,1) both;
+  }
+
+  .prog-seg {
+    flex: 1;
+    height: 2px;
+    background: var(--border);
+    transition: background 0.4s;
+    cursor: pointer;
+  }
+  .prog-seg.done { background: var(--muted2); }
+  .prog-seg.active { background: var(--gold); }
+
+  /* ── SECTION ── */
+  .section { display: none; }
+  .section.active {
+    display: block;
+    animation: reveal 0.5s cubic-bezier(.22,1,.36,1) both;
+  }
+
+  .section-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .step-tag {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-weight: 500;
+  }
+
+  .step-num {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+  }
+
+  .section-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(22px, 4vw, 30px);
+    font-weight: 400;
+    margin-bottom: 36px;
+    line-height: 1.25;
+    color: var(--white);
+  }
+
+  /* ── FIELDS ── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-1 { display: grid; grid-template-columns: 1fr; }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .field label {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 500;
+  }
+
+  input[type=text], input[type=email], input[type=tel],
+  input[type=date], input[type=number], select, textarea {
+    width: 100%;
+    padding: 13px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 300;
+    outline: none;
+    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+    appearance: none;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--gold);
+    background: var(--surface2);
+    box-shadow: 0 0 0 3px var(--gold-dim);
+  }
+
+  input::placeholder, textarea::placeholder { color: var(--muted2); }
+
+  select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236b6b6b' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 36px;
+    cursor: pointer;
+    color: var(--white);
+  }
+
+  select option { background: #1a1a1a; }
+
+  textarea { resize: vertical; min-height: 96px; line-height: 1.65; }
+
+  /* Color fix for date inputs */
+  input[type=date]::-webkit-calendar-picker-indicator { filter: invert(0.5); cursor: pointer; }
+
+  /* ── CARD CHOICES ── */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+
+  .cards.wide { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
+
+  .card-opt { position: relative; }
+  .card-opt input { position: absolute; opacity: 0; width: 0; height: 0; }
+
+  .card-opt label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 16px 10px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--surface);
+    text-align: center;
+  }
+
+  .card-opt label:hover {
+    border-color: var(--border-hover);
+    background: var(--surface2);
+  }
+
+  .card-opt input:checked + label {
+    border-color: var(--gold);
+    background: var(--gold-glow);
+    box-shadow: inset 0 0 0 1px var(--gold);
+  }
+
+  .card-icon { font-size: 20px; line-height: 1; }
+
+  .card-text {
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--muted);
+    letter-spacing: 0.04em;
+    line-height: 1.35;
+    text-transform: none;
+  }
+
+  .card-opt input:checked + label .card-text { color: var(--white); }
+
+  /* ── RANGE ── */
+  .range-track {
+    position: relative;
+    padding: 4px 0;
+  }
+
+  input[type=range] {
+    width: 100%;
+    height: 2px;
+    background: var(--border);
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    outline: none;
+    box-shadow: none;
+  }
+
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 2px solid var(--gold);
+    box-shadow: 0 0 8px rgba(201,168,76,0.3);
+  }
+
+  .range-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: var(--muted2);
+    margin-top: 6px;
+    letter-spacing: 0.05em;
+  }
+
+  .range-display {
+    font-family: 'DM Serif Display', serif;
+    font-size: 26px;
+    color: var(--gold);
+    text-align: center;
+    margin-top: 14px;
+    letter-spacing: 0.02em;
+  }
+
+  /* ── DIVIDER ── */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 28px 0;
+  }
+
+  /* ── BUTTONS ── */
+  .btn-row {
+    display: flex;
+    gap: 12px;
+    margin-top: 44px;
+    align-items: center;
+  }
+
+  .btn {
+    padding: 14px 28px;
+    border: none;
+    border-radius: 2px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-primary {
+    background: var(--gold);
+    color: #0d0d0d;
+    flex: 1;
+  }
+
+  .btn-primary:hover { background: #d4b05a; }
+
+  .btn-back {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+
+  .btn-back:hover { border-color: var(--border-hover); color: var(--white); }
+
+  /* ── SUMMARY ── */
+  .summary-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+
+  .summary-block h3 {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 16px;
+    font-weight: 500;
+  }
+
+  .sum-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--border);
+    gap: 20px;
+    font-size: 13px;
+  }
+
+  .sum-row:last-child { border-bottom: none; }
+  .sum-key { color: var(--muted); flex-shrink: 0; }
+  .sum-val { color: var(--white); text-align: right; font-weight: 300; }
+
+  /* ── SUCCESS ── */
+  .success {
+    display: none;
+    text-align: center;
+    padding: 60px 0;
+    animation: reveal 0.7s cubic-bezier(.22,1,.36,1) both;
+  }
+
+  .success.show { display: block; }
+
+  .success-ring {
+    width: 80px;
+    height: 80px;
+    border: 1px solid var(--gold);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 32px;
+    font-size: 32px;
+    animation: pulse 2.5s ease infinite;
+  }
+
+  .success h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 36px;
+    font-weight: 400;
+    margin-bottom: 14px;
+    line-height: 1.2;
+  }
+
+  .success h2 em { font-style: italic; color: var(--gold); }
+
+  .success p {
+    font-size: 14px;
+    color: var(--muted);
+    font-weight: 300;
+    line-height: 1.8;
+    max-width: 400px;
+    margin: 0 auto 10px;
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes reveal {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(201,168,76,0.2); }
+    50% { box-shadow: 0 0 0 12px rgba(201,168,76,0); }
+  }
+
+  @media (max-width: 520px) {
+    .grid-2 { grid-template-columns: 1fr; }
+    .cards { grid-template-columns: 1fr 1fr; }
+    .btn-row { flex-direction: column-reverse; }
+    .btn { width: 100%; text-align: center; }
+    .btn-back { order: 2; }
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="eyebrow">
+      <div class="eyebrow-line"></div>
+      <span>Videomaker & Storymaker</span>
+    </div>
+    <h1>Vamos criar a sua<br><em>história em filme.</em></h1>
+    <p>Preencha abaixo para que eu entenda cada detalhe do seu casamento e possa montar um orçamento sob medida para você.</p>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="progress" id="progressBar">
+    <div class="prog-seg active" onclick="goTo(0)"></div>
+    <div class="prog-seg" onclick="goTo(1)"></div>
+    <div class="prog-seg" onclick="goTo(2)"></div>
+    <div class="prog-seg" onclick="goTo(3)"></div>
+    <div class="prog-seg" onclick="goTo(4)"></div>
+  </div>
+
+  <!-- FORM -->
+  <div id="formMain">
+
+    <!-- ① CASAL -->
+    <div class="section active" id="s0">
+      <div class="section-meta">
+        <span class="step-tag">O Casal</span>
+        <span class="step-num">01 / 05</span>
+      </div>
+      <div class="section-title">Quem são os protagonistas?</div>
+
+      <div class="grid-2">
+        <div class="field">
+          <label>Nome da noiva</label>
+          <input type="text" id="noiva" placeholder="Seu nome completo">
+        </div>
+        <div class="field">
+          <label>Nome do noivo(a)</label>
+          <input type="text" id="noivo" placeholder="Nome completo">
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="field">
+          <label>WhatsApp</label>
+          <input type="tel" id="whatsapp" placeholder="(00) 00000-0000">
+        </div>
+        <div class="field">
+          <label>E-mail</label>
+          <input type="email" id="email" placeholder="seu@email.com">
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="field">
+          <label>Data do casamento</label>
+          <input type="date" id="data">
+        </div>
+        <div class="field">
+          <label>Cidade / Estado</label>
+          <input type="text" id="cidade" placeholder="Ex: São Paulo, SP">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Como nos conheceu?</label>
+        <select id="origem">
+          <option value="">Selecione...</option>
+          <option>Instagram</option>
+          <option>Indicação de amigos / família</option>
+          <option>YouTube</option>
+          <option>Google</option>
+          <option>Pinterest</option>
+          <option>Feira de noivas</option>
+          <option>Outro</option>
+        </select>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="next()">Próximo →</button>
+      </div>
+    </div>
+
+    <!-- ② SERVIÇOS -->
+    <div class="section" id="s1">
+      <div class="section-meta">
+        <span class="step-tag">Serviços</span>
+        <span class="step-num">02 / 05</span>
+      </div>
+      <div class="section-title">O que você está buscando?</div>
+
+      <div class="field">
+        <label>Quais serviços te interessam?</label>
+        <div class="cards wide">
+          <div class="card-opt">
+            <input type="checkbox" id="sv1" value="Teaser Cinematográfico">
+            <label for="sv1">
+              <span class="card-icon">🎬</span>
+              <span class="card-text">Teaser Cinematográfico</span>
+            </label>
+          </div>
+          <div class="card-opt">
+            <input type="checkbox" id="sv3" value="Storymaker (Stories / Reels)">
+            <label for="sv3">
+              <span class="card-icon">📱</span>
+              <span class="card-text">Storymaker (Stories / Reels)</span>
+            </label>
+          </div>
+          <div class="card-opt">
+            <input type="checkbox" id="sv4" value="Vídeo Drone">
+            <label for="sv4">
+              <span class="card-icon">🚁</span>
+              <span class="card-text">Vídeo com Drone</span>
+            </label>
+          </div>
+          <div class="card-opt">
+            <input type="checkbox" id="sv5" value="Pré-wedding">
+            <label for="sv5">
+              <span class="card-icon">💏</span>
+              <span class="card-text">Pré-Wedding</span>
+            </label>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="field">
+        <label>Estilo visual que te inspira</label>
+        <div class="cards">
+          <div class="card-opt">
+            <input type="radio" name="estilo" id="e1" value="Cinematográfico dramático">
+            <label for="e1">
+              <span class="card-icon">🎭</span>
+              <span class="card-text">Cinematográfico dramático</span>
+            </label>
+          </div>
+          <div class="card-opt">
+            <input type="radio" name="estilo" id="e2" value="Leve e romântico">
+            <label for="e2">
+              <span class="card-icon">🌸</span>
+              <span class="card-text">Leve e romântico</span>
+            </label>
+          </div>
+          <div class="card-opt">
+            <input type="radio" name="estilo" id="e3" value="Documental / natural">
+            <label for="e3">
+              <span class="card-icon">🎥</span>
+              <span class="card-text">Documental / natural</span>
+            </label>
+          </div>
+<div class="card-opt">
+            <input type="radio" name="estilo" id="e5" value="Ainda não sei">
+            <label for="e5">
+              <span class="card-icon">🔍</span>
+              <span class="card-text">Ainda não sei</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-back" onclick="prev()">← Voltar</button>
+        <button class="btn btn-primary" onclick="next()">Próximo →</button>
+      </div>
+    </div>
+
+    <!-- ③ O EVENTO -->
+    <div class="section" id="s2">
+      <div class="section-meta">
+        <span class="step-tag">O Evento</span>
+        <span class="step-num">03 / 05</span>
+      </div>
+      <div class="section-title">Me conte sobre o seu dia.</div>
+
+      <div class="grid-2">
+        <div class="field">
+          <label>Número de convidados</label>
+          <select id="convidados">
+            <option value="">Selecione...</option>
+            <option>Até 50 (mini wedding)</option>
+            <option>50 – 100</option>
+            <option>100 – 200</option>
+            <option>200 – 350</option>
+            <option>Mais de 350</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Tipo de cerimônia</label>
+          <select id="cerimonia">
+            <option value="">Selecione...</option>
+            <option>Religiosa</option>
+            <option>Civil</option>
+            <option>Simbólica</option>
+            <option>Religiosa + Civil</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Horário da cerimônia</label>
+        <div class="cards">
+          <div class="card-opt">
+            <input type="radio" name="horario" id="h1" value="Manhã">
+            <label for="h1"><span class="card-icon">🌅</span><span class="card-text">Manhã</span></label>
+          </div>
+          <div class="card-opt">
+            <input type="radio" name="horario" id="h2" value="Tarde">
+            <label for="h2"><span class="card-icon">☀️</span><span class="card-text">Tarde</span></label>
+          </div>
+          <div class="card-opt">
+            <input type="radio" name="horario" id="h3" value="Pôr do sol (golden hour)">
+            <label for="h3"><span class="card-icon">🌇</span><span class="card-text">Golden hour</span></label>
+          </div>
+          <div class="card-opt">
+            <input type="radio" name="horario" id="h4" value="Noite">
+            <label for="h4"><span class="card-icon">🌙</span><span class="card-text">Noite</span></label>
+          </div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Tipo de espaço</label>
+        <div class="cards">
+          <div class="card-opt">
+            <input type="radio" name="espaco" id="esp1" value="Salão de festas">
+            <label for="esp1"><span class="card-icon">🏛️</span><span class="card-text">Salão de festas</span></label>
+          </div>
+          <div class="card-opt">
+            <input type="radio" name="espaco" id="esp2" value="Sítio / Haras">
+            <label for="esp2"><span class="card-icon">🌿</span><span class="card-text">Sítio / Haras</span></label>
+          </div>
+          <div class="card-opt">
+            <input type="radio" name="espaco" id="esp3" value="Praia">
+            <label for="esp3"><span class="card-icon">🏖️</span><span class="card-text">Praia</span></label>
+          </div>
+          <div class="card-opt">
+            <input type="radio" name="espaco" id="esp4" value="Espaço urbano">
+            <label for="esp4"><span class="card-icon">🏙️</span><span class="card-text">Espaço urbano</span></label>
+          </div>
+          <div class="card-opt">
+            <input type="radio" name="espaco" id="esp5" value="Ainda buscando">
+            <label for="esp5"><span class="card-icon">📍</span><span class="card-text">Ainda buscando</span></label>
+          </div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Haverá banda / DJ ao vivo?</label>
+        <div class="cards">
+          <div class="card-opt">
+            <input type="radio" name="musica" id="m1" value="Banda ao vivo">
+            <label for="m1"><span class="card-icon">🎸</span><span class="card-text">Banda ao vivo</span></label>
+          </div>
+          <div class="card-opt">
+            <input type="radio" name="musica" id="m2" value="DJ">
+            <label for="m2"><span class="card-icon">🎧</span><span class="card-text">DJ</span></label>
+          </div>
+          <div class="card-opt">
+            <input type="radio" name="musica" id="m3" value="Banda + DJ">
+            <label for="m3"><span class="card-icon">🎶</span><span class="card-text">Banda + DJ</span></label>
+          </div>
+          <div class="card-opt">
+            <input type="radio" name="musica" id="m4" value="Playlist">
+            <label for="m4"><span class="card-icon">🎵</span><span class="card-text">Playlist</span></label>
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-back" onclick="prev()">← Voltar</button>
+        <button class="btn btn-primary" onclick="next()">Próximo →</button>
+      </div>
+    </div>
+
+    <!-- ④ PRODUÇÃO -->
+    <div class="section" id="s3">
+      <div class="section-meta">
+        <span class="step-tag">Produção</span>
+        <span class="step-num">04 / 05</span>
+      </div>
+      <div class="section-title">Detalhes de produção.</div>
+
+      <div class="field">
+        <label>Horas de cobertura desejadas</label>
+        <div class="cards">
+          <div class="card-opt">
+            <input type="radio" name="horas" id="hr1" value="Até 6h">
+            <label for="hr1"><span class="card-icon">⏱️</span><span class="card-text">Até 6h</span></label>
+          </div>
+          <div class="card-opt">
+            <input type="radio" name="horas" id="hr2" value="6 – 10h">
+            <label for="hr2"><span class="card-icon">⏱️</span><span class="card-text">6 – 10h</span></label>
+          </div>
+          <div class="card-opt">
+            <input type="radio" name="horas" id="hr3" value="10 – 14h">
+            <label for="hr3"><span class="card-icon">⏱️</span><span class="card-text">10 – 14h</span></label>
+          </div>
+          <div class="card-opt">
+            <input type="radio" name="horas" id="hr4" value="Dia completo (14h+)">
+            <label for="hr4"><span class="card-icon">🎬</span><span class="card-text">Dia completo</span></label>
+          </div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Onde a noiva vai se preparar?</label>
+        <div class="cards">
+          <div class="card-opt">
+            <input type="radio" name="making" id="mk1" value="Própria casa">
+            <label for="mk1"><span class="card-icon">🏠</span><span class="card-text">Própria casa</span></label>
+          </div>
+          <div class="card-opt">
+            <input type="radio" name="making" id="mk2" value="Hotel">
+            <label for="mk2"><span class="card-icon">🏨</span><span class="card-text">Hotel</span></label>
+          </div>
+          <div class="card-opt">
+            <input type="radio" name="making" id="mk3" value="No espaço do evento">
+            <label for="mk3"><span class="card-icon">🪞</span><span class="card-text">No espaço</span></label>
+          </div>
+          <div class="card-opt">
+            <input type="radio" name="making" id="mk4" value="Ainda não definido">
+            <label for="mk4"><span class="card-icon">❓</span><span class="card-text">Ainda não sei</span></label>
+          </div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Haverá filmagem também do making of (making off)?</label>
+        <div class="cards">
+          <div class="card-opt">
+            <input type="radio" name="makingoff" id="mo1" value="Sim, quero making of completo">
+            <label for="mo1"><span class="card-icon">✅</span><span class="card-text">Sim, quero making of</span></label>
+          </div>
+          <div class="card-opt">
+            <input type="radio" name="makingoff" id="mo2" value="Só alguns momentos">
+            <label for="mo2"><span class="card-icon">📸</span><span class="card-text">Só alguns momentos</span></label>
+          </div>
+          <div class="card-opt">
+            <input type="radio" name="makingoff" id="mo3" value="Não precisa">
+            <label for="mo3"><span class="card-icon">❌</span><span class="card-text">Não precisa</span></label>
+          </div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Investimento previsto</label>
+        <div class="range-track">
+          <input type="range" id="budget" min="0" max="10" step="1" value="4" oninput="updateBudget(this.value)">
+          <div class="range-labels">
+            <span>R$900</span>
+            <span>R$5.000</span>
+            <span>R$15.000+</span>
+          </div>
+        </div>
+        <div class="range-display" id="budgetLabel">R$ 3.500 – 5.000</div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-back" onclick="prev()">← Voltar</button>
+        <button class="btn btn-primary" onclick="next()">Próximo →</button>
+      </div>
+    </div>
+
+    <!-- ⑤ RESUMO -->
+    <div class="section" id="s4">
+      <div class="section-meta">
+        <span class="step-tag">Revisão</span>
+        <span class="step-num">05 / 05</span>
+      </div>
+      <div class="section-title">Quase no ar. Confira tudo.</div>
+
+      <div class="summary-block" id="summaryBlock"></div>
+
+      <div class="field">
+        <label>Referências de vídeos que você ama</label>
+        <textarea id="refs" placeholder="Cole aqui links do YouTube, Instagram, Vimeo — ou descreva o que te emociona num vídeo de casamento…"></textarea>
+      </div>
+
+      <div class="field">
+        <label>Músicas que você imagina no vídeo</label>
+        <textarea id="musicas" placeholder="Artistas, estilos ou músicas específicas. Isso vai muito para a identidade do filme…" style="min-height:80px;"></textarea>
+      </div>
+
+      <div class="field">
+        <label>Mensagem livre</label>
+        <textarea id="mensagem" placeholder="Alguma história especial, pedido, ou qualquer coisa que queira nos contar…"></textarea>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-back" onclick="prev()">← Voltar</button>
+        <button class="btn btn-primary" onclick="submit()">Enviar ✦</button>
+      </div>
+    </div>
+
+  </div><!-- /formMain -->
+
+  <!-- SUCCESS -->
+  <div class="success" id="successScreen">
+    <div class="success-ring">🎬</div>
+    <h2>Recebemos tudo,<br><em id="nomeNoivaSuccess"></em>!</h2>
+    <p>Sua história está nas mãos certas. Em breve entraremos em contato para montar juntos o orçamento ideal para o seu filme de casamento.</p>
+    <p style="margin-top:12px; font-style:italic; color: var(--gold); font-size:13px;">Que venha a golden hour. 🌇</p>
+  </div>
+
+</div>
+
+<script>
+  let step = 0;
+
+  const budgetRanges = [
+    'R$ 900 – 1.200',
+    'R$ 1.200 – 1.800',
+    'R$ 1.800 – 2.500',
+    'R$ 2.500 – 3.500',
+    'R$ 3.500 – 5.000',
+    'R$ 5.000 – 7.000',
+    'R$ 7.000 – 9.000',
+    'R$ 9.000 – 11.000',
+    'R$ 11.000 – 13.000',
+    'R$ 13.000 – 15.000',
+    'Acima de R$ 15.000',
+  ];
+
+  function updateBudget(v) {
+    document.getElementById('budgetLabel').textContent = budgetRanges[v];
+    const pct = (v / 10) * 100;
+    document.getElementById('budget').style.background =
+      `linear-gradient(to right, var(--gold) 0%, var(--gold) ${pct}%, var(--border) ${pct}%)`;
+  }
+  updateBudget(4);
+
+  function updateProgress() {
+    document.querySelectorAll('.prog-seg').forEach((el, i) => {
+      el.classList.remove('active', 'done');
+      if (i < step) el.classList.add('done');
+      else if (i === step) el.classList.add('active');
+    });
+  }
+
+  function show(n) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.getElementById(`s${n}`).classList.add('active');
+    updateProgress();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function next() {
+    if (step === 4) return submit();
+    if (step === 3) buildSummary();
+    step++;
+    show(step);
+  }
+
+  function prev() { if (step > 0) { step--; show(step); } }
+  function goTo(n) { if (n <= step) { step = n; show(n); } }
+
+  function checked(name) {
+    return [...document.querySelectorAll(`input[name="${name}"]:checked`)].map(i => i.value).join(', ');
+  }
+
+  function checkedBoxes(ids) {
+    return ids.map(id => document.getElementById(id)).filter(el => el?.checked).map(el => el.value).join(', ');
+  }
+
+  function val(id) { return document.getElementById(id)?.value || '—'; }
+
+  function buildSummary() {
+    const servicos = checkedBoxes(['sv1','sv2','sv3','sv4','sv5','sv6']);
+    const rows = [
+      ['Noiva', val('noiva')],
+      ['Noivo(a)', val('noivo')],
+      ['WhatsApp', val('whatsapp')],
+      ['E-mail', val('email')],
+      ['Data', val('data')],
+      ['Cidade', val('cidade')],
+      ['Serviços', servicos || '—'],
+      ['Estilo visual', checked('estilo') || '—'],
+      ['Convidados', val('convidados')],
+      ['Horário', checked('horario') || '—'],
+      ['Espaço', checked('espaco') || '—'],
+      ['Horas de cobertura', checked('horas') || '—'],
+      ['Making of', checked('makingoff') || '—'],
+      ['Investimento', document.getElementById('budgetLabel').textContent],
+    ];
+
+    document.getElementById('summaryBlock').innerHTML =
+      `<h3>Resumo da Produção</h3>` +
+      rows.map(r => `<div class="sum-row"><span class="sum-key">${r[0]}</span><span class="sum-val">${r[1]}</span></div>`).join('');
+  }
+
+  function submit() {
+    const servicos = checkedBoxes(['sv1','sv3','sv4','sv5']);
+
+    const msg = [
+      '🎬 *NOVO ORÇAMENTO — FORMULÁRIO DE CASAMENTO*',
+      '',
+      '👰 *O CASAL*',
+      `• Noiva: ${val('noiva')}`,
+      `• Noivo(a): ${val('noivo')}`,
+      `• WhatsApp: ${val('whatsapp')}`,
+      `• E-mail: ${val('email')}`,
+      `• Data: ${val('data')}`,
+      `• Cidade: ${val('cidade')}`,
+      `• Como nos conheceu: ${val('origem')}`,
+      '',
+      '🎥 *SERVIÇOS & ESTILO*',
+      `• Serviços: ${servicos || '—'}`,
+      `• Estilo visual: ${checked('estilo') || '—'}`,
+      '',
+      '💍 *O EVENTO*',
+      `• Convidados: ${val('convidados')}`,
+      `• Cerimônia: ${val('cerimonia')}`,
+      `• Horário: ${checked('horario') || '—'}`,
+      `• Espaço: ${checked('espaco') || '—'}`,
+      `• Música: ${checked('musica') || '—'}`,
+      '',
+      '🎞️ *PRODUÇÃO*',
+      `• Horas de cobertura: ${checked('horas') || '—'}`,
+      `• Local do making of: ${checked('making') || '—'}`,
+      `• Making of: ${checked('makingoff') || '—'}`,
+      `• Investimento previsto: ${document.getElementById('budgetLabel').textContent}`,
+      '',
+      '💬 *MENSAGEM LIVRE*',
+      `• Referências: ${val('refs') || '—'}`,
+      `• Músicas: ${val('musicas') || '—'}`,
+      `• Observações: ${val('mensagem') || '—'}`,
+    ].join('\n');
+
+    const phone = '5511965862501';
+    const url = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
+    window.open(url, '_blank');
+
+    document.getElementById('formMain').style.display = 'none';
+    document.getElementById('progressBar').style.display = 'none';
+    const nome = val('noiva').split(' ')[0] || 'Noiva';
+    document.getElementById('nomeNoivaSuccess').textContent = nome;
+    document.getElementById('successScreen').classList.add('show');
+  }
+</script>
+</body>
+</html>
